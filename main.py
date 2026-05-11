@@ -29,7 +29,6 @@ user_data = {}
 # ================= FORCE JOIN =================
 
 async def is_joined(client, user_id):
-    return True
     try:
         member = await client.get_chat_member(CHANNEL, user_id)
         return True
@@ -152,49 +151,69 @@ async def bgmi(client, callback_query):
 
 # ================= CREDIT CARD =================
 
+# ================= CREDIT CARD =================
+
 @app.on_callback_query(filters.regex("cc"))
 async def cc(client, callback_query):
 
-    text = """
-💳 CREDIT CARDS
+    buttons = [
+        [
+            InlineKeyboardButton(
+                "15$ CARD - ₹1455",
+                callback_data="buy_cc15"
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                "20$ CARD - ₹1940",
+                callback_data="buy_cc20"
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                "35$ CARD - ₹3395",
+                callback_data="buy_cc35"
+            )
+        ]
+    ]
 
-15$ = ₹1455
-Balance 400$-450$
+    await callback_query.message.reply_text(
+        "💳 CREDIT CARDS",
+        reply_markup=InlineKeyboardMarkup(buttons)
+    )
 
-20$ = ₹1940
-Balance 4500$
-
-35$ = ₹3395
-Balance 6780$
-
-50$ = ₹4850
-Balance 800$-900$
-
-100$ = ₹9700
-Balance 900$-2000$
-"""
-
-    await callback_query.message.reply_text(text)
+# ================= GIFT CARD =================
 
 # ================= GIFT CARD =================
 
 @app.on_callback_query(filters.regex("gift"))
 async def gift(client, callback_query):
 
-    text = """
-🎁 GIFT CARDS
+    buttons = [
+        [
+            InlineKeyboardButton(
+                "15$ GIFT - ₹1455",
+                callback_data="buy_gift15"
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                "20$ GIFT - ₹1940",
+                callback_data="buy_gift20"
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                "35$ GIFT - ₹3395",
+                callback_data="buy_gift35"
+            )
+        ]
+    ]
 
-15$ = ₹1455
-Balance 3000
-
-20$ = ₹1940
-Balance 4500
-
-35$ = ₹3395
-Balance 6780
-"""
-
-    await callback_query.message.reply_text(text)
+    await callback_query.message.reply_text(
+        "🎁 GIFT CARDS",
+        reply_markup=InlineKeyboardMarkup(buttons)
+    )
 
 # ================= HACK =================
 
@@ -214,17 +233,45 @@ async def hack(client, callback_query):
 
 # ================= BUY =================
 
+# ================= BUY =================
+
 @app.on_callback_query(filters.regex("buy_"))
 async def buy(client, callback_query):
 
     user_id = callback_query.from_user.id
+    data = callback_query.data
 
-    if "8100" in callback_query.data:
+    if data == "buy_8100":
         product = "8100 UC"
         price = "3000"
-    else:
+
+    elif data == "buy_18000":
         product = "18000 UC"
         price = "5000"
+
+    elif data == "buy_cc15":
+        product = "15$ Credit Card"
+        price = "1455"
+
+    elif data == "buy_cc20":
+        product = "20$ Credit Card"
+        price = "1940"
+
+    elif data == "buy_cc35":
+        product = "35$ Credit Card"
+        price = "3395"
+
+    elif data == "buy_gift15":
+        product = "15$ Gift Card"
+        price = "1455"
+
+    elif data == "buy_gift20":
+        product = "20$ Gift Card"
+        price = "1940"
+
+    else:
+        product = "35$ Gift Card"
+        price = "3395"
 
     user_data[user_id] = {
         "product": product,
@@ -233,11 +280,14 @@ async def buy(client, callback_query):
 
     await callback_query.message.reply_text(
         f"""
-🎮 Product: {product}
+🛒 Product: {product}
 
 💰 Amount: ₹{price}
 
-🆔 Ab BGMI UID Bhejo
+🏦 UPI ID:
+`{UPI_ID}`
+
+📥 Payment Karke UTR Bhejo
 """
     )
 
