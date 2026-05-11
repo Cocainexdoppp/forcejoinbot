@@ -4,7 +4,7 @@ from pyrogram.handlers import CallbackQueryHandler
 
 api_id = 36794033
 api_hash = "f0f1a2dcdfc1f012ed85f41a4e1ea1ef"
-bot_token = "all_carding_ccbot"
+bot_token = "7959585410:AAHfx4fDgbjb6LuAopcyKc9Kjwv8lyv7Kzk"
 
 # PRIVATE CHANNEL ID
 CHANNEL = -1003974281028
