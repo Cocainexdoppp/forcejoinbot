@@ -10,7 +10,7 @@ bot_token = "7959585410:AAHfx4fDgbjb6LuAopcyKc9Kjwv8lyv7Kzk"
 CHANNEL = -1003974281028
 
 # PRIVATE INVITE LINK
-CHANNEL_LINK = "https://t.me/+yIfQ_hCNmIU3YTJl"
+CHANNEL_LINK = "https://t.me/+jGFoT7DWwhczNzM1"
 
 # ADMIN USER ID
 ADMIN_ID = 1829824114
@@ -55,7 +55,7 @@ async def start(client, message):
             [
                 InlineKeyboardButton(
                     "🔥 JOIN CHANNEL 🔥",
-                    url="https://t.me/+yIfQ_hCNmIU3YTJl"
+                    url="https://t.me/+jGFoT7DWwhczNzM1"
                 )
             ],
             [
