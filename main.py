@@ -5,7 +5,7 @@ api_id = 36794033
 api_hash = "f0f1a2dcdfc1f012ed85f41a4e1ea1ef"
 bot_token = "7959585410:AAHfx4fDgbjb6LuAopcyKc9Kjwv8lyv7Kzk"
 
-CHANNEL = "Carder zone"
+CHANNEL =-1003974281028
 
 app = Client(
     "bot",
@@ -30,7 +30,7 @@ async def start(client, message):
             [
                 InlineKeyboardButton(
                     "Join Channel",
-                    url=f"https://t.me/{CHANNEL}"
+                    url="https://t.me/+jGFoT7DWwhczNzM1"
                 )
             ]
         ]
