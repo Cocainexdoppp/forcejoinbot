@@ -229,11 +229,7 @@ async def hack(client, callback_query):
 
 # ================= BUY =================
 
-# ================= BUY =================
-
-# ================= BUY =================
-
-@app.on_callback_query(filters.regex("buy_"))
+@app.on_callback_query(filters.regex("^buy_"))
 async def buy(client, callback_query):
 
     user_id = callback_query.from_user.id
@@ -242,12 +238,30 @@ async def buy(client, callback_query):
     # ===== BGMI =====
 
     if data == "buy_8100":
-        product = "8100 UC"
-        price = "3000"
+
+        user_data[user_id] = {
+            "product": "8100 UC",
+            "price": "3000"
+        }
+
+        await callback_query.message.reply_text(
+            "🎮 Ab BGMI UID Bhejo"
+        )
+        return
+
 
     elif data == "buy_18000":
-        product = "18000 UC"
-        price = "5000"
+
+        user_data[user_id] = {
+            "product": "18000 UC",
+            "price": "5000"
+        }
+
+        await callback_query.message.reply_text(
+            "🎮 Ab BGMI UID Bhejo"
+        )
+        return
+
 
     # ===== CREDIT CARD =====
 
@@ -257,11 +271,12 @@ async def buy(client, callback_query):
 
     elif data == "buy_cc20":
         product = "20$ Credit Card"
-        price = "8940"
+        price = "7940"
 
     elif data == "buy_cc35":
         product = "35$ Credit Card"
         price = "9395"
+
 
     # ===== GIFT CARD =====
 
@@ -279,6 +294,7 @@ async def buy(client, callback_query):
 
     else:
         return
+
 
     user_data[user_id] = {
         "product": product,
