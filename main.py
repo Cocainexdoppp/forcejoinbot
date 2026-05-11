@@ -242,7 +242,7 @@ async def buy(client, callback_query):
 
 # ================= USER MESSAGE =================
 
-@app.on_message(filters.private)
+@app.on_message(filters.private & ~filters.command("start"))
 async def user_message(client, message):
 
     user_id = message.from_user.id
