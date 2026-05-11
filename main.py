@@ -29,6 +29,7 @@ user_data = {}
 # ================= FORCE JOIN =================
 
 async def is_joined(client, user_id):
+    return True
     try:
         member = await client.get_chat_member(CHANNEL, user_id)
         return True
