@@ -31,8 +31,16 @@ user_data = {}
 async def is_joined(client, user_id):
     try:
         member = await client.get_chat_member(CHANNEL, user_id)
-        return True
-    except:
+
+        print(member)
+
+        if member.status in ["member", "administrator", "creator"]:
+            return True
+        else:
+            return False
+
+    except Exception as e:
+        print(e)
         return False
 
 # ================= START =================
