@@ -155,19 +155,19 @@ async def cc(client, callback_query):
     buttons = [
         [
             InlineKeyboardButton(
-                "15$ CARD - ₹1455",
+                "15$ CARD - ₹4455",
                 callback_data="buy_cc15"
             )
         ],
         [
             InlineKeyboardButton(
-                "20$ CARD - ₹1940",
+                "20$ CARD - ₹8240",
                 callback_data="buy_cc20"
             )
         ],
         [
             InlineKeyboardButton(
-                "35$ CARD - ₹3395",
+                "35$ CARD - ₹9395",
                 callback_data="buy_cc35"
             )
         ]
@@ -188,19 +188,19 @@ async def gift(client, callback_query):
     buttons = [
         [
             InlineKeyboardButton(
-                "15$ GIFT - ₹1455",
+                "15$ GIFT - ₹3455",
                 callback_data="buy_gift15"
             )
         ],
         [
             InlineKeyboardButton(
-                "20$ GIFT - ₹1940",
+                "20$ GIFT - ₹4940",
                 callback_data="buy_gift20"
             )
         ],
         [
             InlineKeyboardButton(
-                "35$ GIFT - ₹3395",
+                "35$ GIFT - ₹8395",
                 callback_data="buy_gift35"
             )
         ]
@@ -231,11 +231,15 @@ async def hack(client, callback_query):
 
 # ================= BUY =================
 
+# ================= BUY =================
+
 @app.on_callback_query(filters.regex("buy_"))
 async def buy(client, callback_query):
 
     user_id = callback_query.from_user.id
     data = callback_query.data
+
+    # ===== BGMI =====
 
     if data == "buy_8100":
         product = "8100 UC"
@@ -245,29 +249,36 @@ async def buy(client, callback_query):
         product = "18000 UC"
         price = "5000"
 
+    # ===== CREDIT CARD =====
+
     elif data == "buy_cc15":
         product = "15$ Credit Card"
-        price = "1455"
+        price = "4455"
 
     elif data == "buy_cc20":
         product = "20$ Credit Card"
-        price = "1940"
+        price = "8940"
 
     elif data == "buy_cc35":
         product = "35$ Credit Card"
-        price = "3395"
+        price = "9395"
+
+    # ===== GIFT CARD =====
 
     elif data == "buy_gift15":
         product = "15$ Gift Card"
-        price = "1455"
+        price = "3455"
 
     elif data == "buy_gift20":
         product = "20$ Gift Card"
-        price = "1940"
+        price = "4940"
+
+    elif data == "buy_gift35":
+        product = "35$ Gift Card"
+        price = "8395"
 
     else:
-        product = "35$ Gift Card"
-        price = "3395"
+        return
 
     user_data[user_id] = {
         "product": product,
