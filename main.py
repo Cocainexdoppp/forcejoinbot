@@ -1,27 +1,19 @@
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from pyrogram.handlers import CallbackQueryHandler
 
-api_id = 36794033
-api_hash = "f0f1a2dcdfc1f012ed85f41a4e1ea1ef"
-bot_token = "7959585410:AAHfx4fDgbjb6LuAopcyKc9Kjwv8lyv7Kzk"
+API_ID = 123456
+API_HASH = "YOUR_API_HASH"
+BOT_TOKEN = "YOUR_BOT_TOKEN"
 
-# PRIVATE CHANNEL ID
-CHANNEL = -1003974281028
-
-# PRIVATE INVITE LINK
-CHANNEL_LINK = "https://t.me/+jGFoT7DWwhczNzM1"
-
-# ADMIN USER ID
-ADMIN_ID = 1829824114
-
-UPI_ID = "zaincarder@axl"
+ADMIN_ID = 123456789
+FORCE_CHANNEL = "yourchannelusername"
+UPI_ID = "yourupi@upi"
 
 app = Client(
-    "storebot",
-    api_id=api_id,
-    api_hash=api_hash,
-    bot_token=bot_token
+    "shop_bot",
+    api_id=API_ID,
+    api_hash=API_HASH,
+    bot_token=BOT_TOKEN
 )
 
 user_data = {}
@@ -44,101 +36,88 @@ async def joined(client, user_id):
 
     except:
         return False
+
+
 # ================= START =================
 
-@app.on_message(filters.private & filters.command("start"))
+@app.on_message(filters.command("start"))
 async def start(client, message):
 
-    joined = await is_joined(client, message.from_user.id)
+    ok = await joined(client, message.from_user.id)
 
-    if not joined:
-        buttons = [
+    if not ok:
+
+        buttons = InlineKeyboardMarkup([
             [
                 InlineKeyboardButton(
-                    "🔥 JOIN CHANNEL 🔥",
-                    url="https://t.me/+jGFoT7DWwhczNzM1"
+                    "📢 Join Channel",
+                    url=f"https://t.me/{FORCE_CHANNEL}"
                 )
             ],
             [
                 InlineKeyboardButton(
-                    "✅ JOINED",
+                    "✅ Joined",
                     callback_data="check_join"
                 )
             ]
-        ]
+        ])
 
-        await message.reply_photo(
-            photo="https://graph.org/file/8d4e2e7f6d4f0d4d1d4fd.jpg",
-            caption="""
-🔥 Welcome To Carder Zone 🔥
-
-⚠️ Pehle Channel Join Karo
-Uske baad Store Open Hoga
-""",
-            reply_markup=InlineKeyboardMarkup(buttons)
+        return await message.reply_text(
+            "⚠️ Pehle Channel Join Karo",
+            reply_markup=buttons
         )
-        return
 
-    buttons = [
+    buttons = InlineKeyboardMarkup([
         [
-            InlineKeyboardButton("🎮 BGMI UC", callback_data="bgmi")
+            InlineKeyboardButton(
+                "🎮 BGMI UC",
+                callback_data="bgmi"
+            )
         ],
         [
-            InlineKeyboardButton("💳 CREDIT CARD", callback_data="cc")
+            InlineKeyboardButton(
+                "💳 Credit Cards",
+                callback_data="cc"
+            )
         ],
         [
-            InlineKeyboardButton("🎁 GIFT CARD", callback_data="gift")
-        ],
-        [
-            InlineKeyboardButton("☠️ HACKS", callback_data="hack")
+            InlineKeyboardButton(
+                "🎁 Gift Cards",
+                callback_data="gift"
+            )
         ]
-    ]
+    ])
 
     await message.reply_text(
-        "🔥 Welcome To Carder Zone Store 🔥",
-        reply_markup=InlineKeyboardMarkup(buttons)
+        "🔥 Welcome To Store",
+        reply_markup=buttons
     )
+
 
 # ================= CHECK JOIN =================
 
 @app.on_callback_query(filters.regex("check_join"))
 async def check_join(client, callback_query):
 
-    joined = await is_joined(client, callback_query.from_user.id)
+    ok = await joined(client, callback_query.from_user.id)
 
-    if not joined:
+    if ok:
+        await callback_query.message.delete()
+        await start(client, callback_query.message)
+
+    else:
         await callback_query.answer(
             "❌ Channel Join Nahi Kiya",
             show_alert=True
         )
-        return
 
-    buttons = [
-        [
-            InlineKeyboardButton("🎮 BGMI UC", callback_data="bgmi")
-        ],
-        [
-            InlineKeyboardButton("💳 CREDIT CARD", callback_data="cc")
-        ],
-        [
-            InlineKeyboardButton("🎁 GIFT CARD", callback_data="gift")
-        ],
-        [
-            InlineKeyboardButton("☠️ HACKS", callback_data="hack")
-        ]
-    ]
-
-    await callback_query.message.reply_text(
-        "🔥 Store Opened 🔥",
-        reply_markup=InlineKeyboardMarkup(buttons)
-    )
 
 # ================= BGMI =================
 
 @app.on_callback_query(filters.regex("bgmi"))
 async def bgmi(client, callback_query):
 
-    buttons = [
+    buttons = InlineKeyboardMarkup([
         [
             InlineKeyboardButton(
                 "8100 UC - ₹3000",
@@ -151,96 +130,67 @@ async def bgmi(client, callback_query):
                 callback_data="buy_18000"
             )
         ]
-    ]
+    ])
 
     await callback_query.message.reply_text(
-        "🎮 BGMI UC PACKS",
-        reply_markup=InlineKeyboardMarkup(buttons)
+        "🎮 Select UC Package",
+        reply_markup=buttons
     )
 
-# ================= CREDIT CARD =================
 
 # ================= CREDIT CARD =================
 
 @app.on_callback_query(filters.regex("cc"))
 async def cc(client, callback_query):
 
-    buttons = [
+    buttons = InlineKeyboardMarkup([
         [
             InlineKeyboardButton(
-                "15$ CARD - ₹4455",
+                "15$ CC - ₹1455",
                 callback_data="buy_cc15"
             )
         ],
         [
             InlineKeyboardButton(
-                "20$ CARD - ₹8240",
+                "20$ CC - ₹1940",
                 callback_data="buy_cc20"
             )
-        ],
-        [
-            InlineKeyboardButton(
-                "35$ CARD - ₹9395",
-                callback_data="buy_cc35"
-            )
         ]
-    ]
+    ])
 
     await callback_query.message.reply_text(
-        "💳 CREDIT CARDS",
-        reply_markup=InlineKeyboardMarkup(buttons)
+        "💳 Select Credit Card",
+        reply_markup=buttons
     )
 
-# ================= GIFT CARD =================
 
 # ================= GIFT CARD =================
 
 @app.on_callback_query(filters.regex("gift"))
 async def gift(client, callback_query):
 
-    buttons = [
+    buttons = InlineKeyboardMarkup([
         [
             InlineKeyboardButton(
-                "15$ GIFT - ₹3455",
+                "15$ Gift - ₹1455",
                 callback_data="buy_gift15"
             )
         ],
         [
             InlineKeyboardButton(
-                "20$ GIFT - ₹4940",
+                "20$ Gift - ₹1940",
                 callback_data="buy_gift20"
             )
-        ],
-        [
-            InlineKeyboardButton(
-                "35$ GIFT - ₹8395",
-                callback_data="buy_gift35"
-            )
         ]
-    ]
+    ])
 
     await callback_query.message.reply_text(
-        "🎁 GIFT CARDS",
-        reply_markup=InlineKeyboardMarkup(buttons)
+        "🎁 Select Gift Card",
+        reply_markup=buttons
     )
 
-# ================= HACK =================
 
-@app.on_callback_query(filters.regex("hack"))
-async def hack(client, callback_query):
-
-    user = callback_query.from_user
-
-    await client.send_message(
-        ADMIN_ID,
-        f"☠️ Hack Request From @{user.username}"
-    )
-
-    await callback_query.message.reply_text(
-        "✅ Hack Team Will Contact You"
-    )
-
-# ================= BUY =================
+# ================= BUY SYSTEM =================
 
 @app.on_callback_query(filters.regex("^buy_"))
 async def buy(client, callback_query):
@@ -248,77 +198,79 @@ async def buy(client, callback_query):
     user_id = callback_query.from_user.id
     data = callback_query.data
 
-    # ===== BGMI =====
+    products = {
 
-    if data == "buy_8100":
-
-        user_data[user_id] = {
+        "buy_8100": {
             "product": "8100 UC",
-            "price": "3000"
-        }
+            "price": "3000",
+            "type": "bgmi"
+        },
 
-        await callback_query.message.reply_text(
-            "🎮 Ab BGMI UID Bhejo"
-        )
-        return
-
-
-    elif data == "buy_18000":
-
-        user_data[user_id] = {
+        "buy_18000": {
             "product": "18000 UC",
-            "price": "5000"
+            "price": "5000",
+            "type": "bgmi"
+        },
+
+        "buy_cc15": {
+            "product": "15$ Credit Card",
+            "price": "1455",
+            "type": "card"
+        },
+
+        "buy_cc20": {
+            "product": "20$ Credit Card",
+            "price": "1940",
+            "type": "card"
+        },
+
+        "buy_gift15": {
+            "product": "15$ Gift Card",
+            "price": "1455",
+            "type": "gift"
+        },
+
+        "buy_gift20": {
+            "product": "20$ Gift Card",
+            "price": "1940",
+            "type": "gift"
         }
+    }
 
-        await callback_query.message.reply_text(
-            "🎮 Ab BGMI UID Bhejo"
-        )
+    if data not in products:
         return
 
-
-    # ===== CREDIT CARD =====
-
-    elif data == "buy_cc15":
-        product = "15$ Credit Card"
-        price = "4455"
-
-    elif data == "buy_cc20":
-        product = "20$ Credit Card"
-        price = "7940"
-
-    elif data == "buy_cc35":
-        product = "35$ Credit Card"
-        price = "9395"
-
-
-    # ===== GIFT CARD =====
-
-    elif data == "buy_gift15":
-        product = "15$ Gift Card"
-        price = "3455"
-
-    elif data == "buy_gift20":
-        product = "20$ Gift Card"
-        price = "4940"
-
-    elif data == "buy_gift35":
-        product = "35$ Gift Card"
-        price = "8395"
-
-    else:
-        return
-
+    item = products[data]
 
     user_data[user_id] = {
-        "product": product,
-        "price": price
+        "product": item["product"],
+        "price": item["price"],
+        "step": "waiting"
     }
+
+    if item["type"] == "bgmi":
+
+        user_data[user_id]["step"] = "uid"
+
+        await callback_query.message.reply_text(
+            f"""
+🎮 Product: {item['product']}
+
+💰 Amount: ₹{item['price']}
+
+🆔 BGMI UID Bhejo
+"""
+        )
+
+        return
+
+    user_data[user_id]["step"] = "utr"
 
     await callback_query.message.reply_text(
         f"""
-🛒 Product: {product}
+🛒 Product: {item['product']}
 
-💰 Amount: ₹{price}
+💰 Amount: ₹{item['price']}
 
 🏦 UPI ID:
 `{UPI_ID}`
@@ -327,43 +279,31 @@ async def buy(client, callback_query):
 """
     )
 
-# ================= USER MESSAGE =================
 
-@app.on_message(filters.private & ~filters.command("start"))
-async def user_message(client, message):
+# ================= TEXT HANDLER =================
+
+@app.on_message(filters.text & filters.private)
+async def text_handler(client, message):
 
     user_id = message.from_user.id
-    message_text = message.text
 
     if user_id not in user_data:
         return
 
     data = user_data[user_id]
 
-    # ===== UID =====
+    # BGMI UID
+    if data["step"] == "uid":
 
-    if "uid" not in data and "UC" in data["product"]:
-
-        data["uid"] = message_text
-
-        await message.reply_text(
-            "🎮 Ab BGMI Username Bhejo"
-        )
-
-        return
-
-    # ===== USERNAME =====
-
-    if "username" not in data and "uid" in data:
-
-        data["username"] = message_text
+        user_data[user_id]["uid"] = message.text
+        user_data[user_id]["step"] = "utr"
 
         await message.reply_text(
             f"""
-💰 Amount: ₹{data['price']}
+✅ UID Saved
 
 🏦 UPI ID:
-{UPI_ID}
+`{UPI_ID}`
 
 📥 Payment Karke UTR Bhejo
 """
@@ -371,82 +311,114 @@ async def user_message(client, message):
 
         return
 
-    # ===== UTR =====
+    # UTR
+    if data["step"] == "utr":
 
-    if "utr" not in data:
-
-        data["utr"] = message_text
-
-        buttons = [
-            [
-                InlineKeyboardButton(
-                    "✅ Approve",
-                    callback_data=f"approve_{user_id}"
-                ),
-
-                InlineKeyboardButton(
-                    "❌ Reject",
-                    callback_data=f"reject_{user_id}"
-                )
-            ]
-        ]
-
-        text = f"""
-🛒 NEW ORDER
-
-🎮 Product: {data['product']}
-
-💰 Amount: ₹{data['price']}
-
-🔢 UTR: {data['utr']}
-"""
-
-        if "uid" in data:
-            text += f"\n🎮 UID: {data['uid']}"
-
-        if "username" in data:
-            text += f"\n👤 BGMI Username: {data['username']}"
-
-        await client.send_message(
-            ADMIN_ID,
-            text,
-            reply_markup=InlineKeyboardMarkup(buttons)
-        )
+        user_data[user_id]["utr"] = message.text
+        user_data[user_id]["step"] = "screenshot"
 
         await message.reply_text(
-            "⌛ Payment Verifying..."
+            "📸 Ab Payment Screenshot Send Karo"
         )
 
-# ================= APPROVE =================
+        return
 
-@app.on_callback_query(filters.regex("approve_"))
-async def approve(client, callback_query):
+
+# ================= SCREENSHOT =================
+
+@app.on_message(filters.photo)
+async def photo_handler(client, message):
+
+    user_id = message.from_user.id
+
+    if user_id not in user_data:
+        return
+
+    data = user_data[user_id]
+
+    if data["step"] != "screenshot":
+        return
+
+    caption = f"""
+🛒 New Order
+
+👤 User: {message.from_user.mention}
+🆔 User ID: {user_id}
+
+📦 Product: {data['product']}
+💰 Price: ₹{data['price']}
+
+🎮 UID: {data.get('uid', 'N/A')}
+
+💳 UTR: {data['utr']}
+"""
+
+    buttons = InlineKeyboardMarkup([
+        [
+            InlineKeyboardButton(
+                "✅ Accept",
+                callback_data=f"accept_{user_id}"
+            ),
+            InlineKeyboardButton(
+                "❌ Reject",
+                callback_data=f"reject_{user_id}"
+            )
+        ]
+    ])
+
+    await client.send_photo(
+        ADMIN_ID,
+        photo=message.photo.file_id,
+        caption=caption,
+        reply_markup=buttons
+    )
+
+    await message.reply_text(
+        "✅ Payment Submitted"
+    )
+
+    user_data[user_id]["step"] = "done"
+
+
+# ================= ACCEPT =================
+
+@app.on_callback_query(filters.regex("^accept_"))
+async def accept(client, callback_query):
+
+    if callback_query.from_user.id != ADMIN_ID:
+        return
 
     user_id = int(callback_query.data.split("_")[1])
 
     await client.send_message(
         user_id,
-        "✅ Payment Successful\n\n🎮 Order Confirmed"
+        "✅ Payment Verified\n\nOrder Approved"
     )
 
-    await callback_query.message.edit_text(
-        "✅ Payment Approved"
+    await callback_query.message.edit_caption(
+        callback_query.message.caption + "\n\n✅ ACCEPTED"
     )
+
 
 # ================= REJECT =================
 
-@app.on_callback_query(filters.regex("reject_"))
+@app.on_callback_query(filters.regex("^reject_"))
 async def reject(client, callback_query):
+
+    if callback_query.from_user.id != ADMIN_ID:
+        return
 
     user_id = int(callback_query.data.split("_")[1])
 
     await client.send_message(
         user_id,
-        "❌ Wrong UTR Number\n\nTry Again"
-    )
-
-    await callback_query.message.edit_text(
         "❌ Payment Rejected"
     )
+
+    await callback_query.message.edit_caption(
+        callback_query.message.caption + "\n\n❌ REJECTED"
+    )
+
+
 print("Bot Started...")
 app.run()
