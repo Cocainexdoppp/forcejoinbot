@@ -1,13 +1,13 @@
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-API_ID = 123456
-API_HASH = "YOUR_API_HASH"
-BOT_TOKEN = "YOUR_BOT_TOKEN"
+API_ID = 36794033
+API_HASH = "f0f1a2dcdfc1f012ed85f41a4e1ea1ef"
+BOT_TOKEN = "7959585410:AAHfx4fDgbjb6LuAopcyKc9Kjwv8lyv7Kzk"
 
-ADMIN_ID = 123456789
-FORCE_CHANNEL = "yourchannelusername"
-UPI_ID = "yourupi@upi"
+ADMIN_ID = 1829824114
+FORCE_CHANNEL = "https://t.me/+jGFoT7DWwhczNzM1"
+UPI_ID = "zayncarder@axl"
 
 app = Client(
     "shop_bot",
@@ -51,7 +51,7 @@ async def start(client, message):
             [
                 InlineKeyboardButton(
                     "📢 Join Channel",
-                    url=f"https://t.me/{FORCE_CHANNEL}"
+                    url="https://t.me/+jGFoT7DWwhczNzM1"
                 )
             ],
             [
