@@ -24,17 +24,14 @@ async def joined(client, user_id):
 
     try:
         member = await client.get_chat_member(
-            FORCE_CHANNEL,
-            user_id
+            chat_id=f"@{FORCE_CHANNEL}",
+            user_id=user_id
         )
 
-        return member.status in [
-            "member",
-            "administrator",
-            "creator"
-        ]
+        return member.status not in ["left", "kicked"]
 
-    except:
+    except Exception as e:
+        print(e)
         return False
 
 
