@@ -6,7 +6,7 @@ API_HASH = "f0f1a2dcdfc1f012ed85f41a4e1ea1ef"
 BOT_TOKEN = "7959585410:AAHfx4fDgbjb6LuAopcyKc9Kjwv8lyv7Kzk"
 
 ADMIN_ID = 1829824114
-FORCE_CHANNEL = "https://t.me/+jGFoT7DWwhczNzM1"
+FORCE_CHANNEL = "https://t.me/zain_carder_zone"
 UPI_ID = "zayncarder@axl"
 
 app = Client(
@@ -24,11 +24,9 @@ async def joined(client, user_id):
 
     try:
         member = await client.get_chat_member(
-            chat_id="Carderzone",
+            chat_id=f"@{}",
             user_id=user_id
         )
-
-        print(member.status)
 
         if member.status in [
             "member",
@@ -39,8 +37,7 @@ async def joined(client, user_id):
 
         return False
 
-    except Exception as e:
-        print(e)
+    except:
         return False
 # ================= START =================
 
@@ -55,7 +52,7 @@ async def start(client, message):
             [
                 InlineKeyboardButton(
                     "📢 Join Channel",
-                    url="https://t.me/+jGFoT7DWwhczNzM1"
+                    url="https://t.me/zain_carder_zone"
                 )
             ],
             [
