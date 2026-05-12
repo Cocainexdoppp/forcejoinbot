@@ -448,5 +448,5 @@ async def reject(client, callback_query):
     await callback_query.message.edit_text(
         "❌ Payment Rejected"
     )
-
+print("Bot Started...")
 app.run()
