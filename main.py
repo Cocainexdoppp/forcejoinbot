@@ -28,9 +28,22 @@ user_data = {}
 
 # ================= FORCE JOIN =================
 
-async def is_joined(client, user_id):
-    return True
+async def joined(client, user_id):
 
+    try:
+        member = await client.get_chat_member(
+            FORCE_CHANNEL,
+            user_id
+        )
+
+        return member.status in [
+            "member",
+            "administrator",
+            "creator"
+        ]
+
+    except:
+        return False
 # ================= START =================
 
 @app.on_message(filters.private & filters.command("start"))
