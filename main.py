@@ -14,12 +14,17 @@ app = Client("shop_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 user_data = {}
 
 # ================= FORCE JOIN FUNCTION =================
-async def joined(client, user_id):
-    try:
-        member = await client.get_chat_member(chat_id=FORCE_CHANNEL, user_id=user_id)
-        return member.status in ["member", "administrator", "creator"]
-    except Exception:
-        return True
+@app.on_callback_query(filters.regex("check_join"))
+async def check_join_fix(client, callback_query):
+    user_id = callback_query.from_user.id
+    is_ok = await joined(client, user_id)
+    
+    if is_ok:
+        await callback_query.answer("✅ Welcome! Aapne join kar liya hai.", show_alert=True)
+        await callback_query.message.delete() # Join wala message delete karega
+        await start(client, callback_query.message) # Phir se start menu dikhayega
+    else:
+        await callback_query.answer("❌ Abhi tak join nahi kiya! Pehle join karein.", show_alert=True)
 
 # ================= START COMMAND =================
 @app.on_message(filters.command("start") & filters.private)
