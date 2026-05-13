@@ -32,7 +32,7 @@ async def show_main_menu(message_or_callback):
         [InlineKeyboardButton("💳 Credit Cards", callback_data="cc")],
         [InlineKeyboardButton("🎁 Gift Cards", callback_data="gift")]
     ])
-    text = "🔥 Welcome To Store\nNiche diye gaye buttons se product select karein."
+    text = "🔥 Welcome To Store\nPlease Select the product."
     
     if hasattr(message_or_callback, "reply_text"):
         await message_or_callback.reply_text(text, reply_markup=buttons)
@@ -48,7 +48,7 @@ async def start(client, message):
             [InlineKeyboardButton("📢 Join Channel", url="https://t.me/zain_carder_zone")],
             [InlineKeyboardButton("✅ Joined", callback_data="check_join")]
         ])
-        return await message.reply_text("⚠️ Pehle Channel Join Karo", reply_markup=buttons)
+        return await message.reply_text("⚠️ First Join The Channel", reply_markup=buttons)
     
     # Agar pehle se join hai toh direct menu
     await show_main_menu(message)
@@ -63,7 +63,7 @@ async def check_join_logic(client, callback_query):
         await callback_query.message.delete()
         await show_main_menu(callback_query)
     else:
-        await callback_query.answer("❌ Aapne abhi tak join nahi kiya hai!", show_alert=True)
+        await callback_query.answer("❌ You Have Still Not Joined the Channel!", show_alert=True)
 
 # ================= 5. PRODUCT MENUS =================
 @app.on_callback_query(filters.regex("^(bgmi|cc|gift)$"))
@@ -104,10 +104,10 @@ async def buy_handler(client, callback_query):
 
     if item["is_bgmi"]:
         user_data[user_id]["step"] = "uid"
-        await callback_query.message.reply_text(f"🎮 {item['name']}\n💰 Amount: ₹{item['price']}\n\n🆔 BGMI UID Bhejo:")
+        await callback_query.message.reply_text(f"🎮 {item['name']}\n💰 Amount: ₹{item['price']}\n\n🆔 Share BGMI UID:")
     else:
         user_data[user_id]["step"] = "utr"
-        await callback_query.message.reply_text(f"🛒 {item['name']}\n💰 Amount: ₹{item['price']}\n\n🏦 UPI ID: `{UPI_ID}`\n\n📥 Payment karke UTR Bhejo:")
+        await callback_query.message.reply_text(f"🛒 {item['name']}\n💰 Amount: ₹{item['price']}\n\n🏦 UPI ID: `{UPI_ID}`\n\n📥 Complete the Payment share the UTR:")
 
 @app.on_message(filters.text & filters.private)
 async def handle_text(client, message):
@@ -118,11 +118,11 @@ async def handle_text(client, message):
     if step == "uid":
         user_data[user_id]["uid"] = message.text
         user_data[user_id]["step"] = "utr"
-        await message.reply_text(f"✅ UID Saved\n\n🏦 UPI ID: `{UPI_ID}`\n\n📥 Payment karke UTR Bhejo:")
+        await message.reply_text(f"✅ UID Saved\n\n🏦 UPI ID: `{UPI_ID}`\n\n📥 Complete the Payment share the UTR:")
     elif step == "utr":
         user_data[user_id]["utr"] = message.text
         user_data[user_id]["step"] = "screenshot"
-        await message.reply_text("📸 Ab Payment Screenshot Send Karo")
+        await message.reply_text("📸 Send the Screenshot")
 
 @app.on_message(filters.photo & filters.private)
 async def handle_photo(client, message):
