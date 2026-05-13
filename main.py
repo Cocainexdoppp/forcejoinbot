@@ -32,7 +32,7 @@ async def joined(client, user_id):
 
         return False
     except Exception:
-        return False
+        return True
 
 # ================= START =================
 
