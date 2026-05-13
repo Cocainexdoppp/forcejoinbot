@@ -6,7 +6,7 @@ API_HASH = "f0f1a2dcdfc1f012ed85f41a4e1ea1ef"
 BOT_TOKEN = "7959585410:AAHfx4fDgbjb6LuAopcyKc9Kjwv8lyv7Kzk"
 
 ADMIN_ID = 1829824114
-FORCE_CHANNEL = "zain_carder_001"
+FORCE_CHANNEL = "-1003974281028"
 UPI_ID = "zayncarder@axl"
 
 app = Client(
@@ -24,7 +24,7 @@ async def joined(client, user_id):
 
     try:
         member = await client.get_chat_member(
-            chat_id="zain_carder_001",
+            chat_id=-1003974281028,
             user_id=user_id
         )
 
