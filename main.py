@@ -7,22 +7,40 @@ API_HASH = "f0f1a2dcdfc1f012ed85f41a4e1ea1ef"
 BOT_TOKEN = "7959585410:AAHfx4fDgbjb6LuAopcyKc9Kjwv8lyv7Kzk"
 
 ADMIN_ID = 1829824114
-FORCE_CHANNEL = -1003974281028
+FORCE_CHANNEL = -1003974281028 # Make sure this ID is correct
 UPI_ID = "zayncarder@axl"
 
 app = Client("shop_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 user_data = {}
 
-# ================= 1. JOINED FUNCTION (SABSE PEHLE) =================
+# ================= 1. JOINED FUNCTION (SABSE UPAR) =================
 async def joined(client, user_id):
     try:
+        # Bot ko channel ka Admin hona zaroori hai membership check karne ke liye
         member = await client.get_chat_member(chat_id=FORCE_CHANNEL, user_id=user_id)
-        return member.status in ["member", "administrator", "creator"]
+        if member.status in ["member", "administrator", "creator"]:
+            return True
+        return False
     except Exception as e:
-        print(f"Join Check Error: {e}")
+        print(f"Error checking join: {e}")
         return False
 
-# ================= 2. START COMMAND =================
+# ================= 2. MAIN MENU FUNCTION =================
+# Ye function start aur check_join dono jagah kaam aayega
+async def show_main_menu(message_or_callback):
+    buttons = InlineKeyboardMarkup([
+        [InlineKeyboardButton("🎮 BGMI UC", callback_data="bgmi")],
+        [InlineKeyboardButton("💳 Credit Cards", callback_data="cc")],
+        [InlineKeyboardButton("🎁 Gift Cards", callback_data="gift")]
+    ])
+    text = "🔥 Welcome To Store\nNiche diye gaye buttons se product select karein."
+    
+    if hasattr(message_or_callback, "reply_text"):
+        await message_or_callback.reply_text(text, reply_markup=buttons)
+    else:
+        await message_or_callback.message.edit_text(text, reply_markup=buttons)
+
+# ================= 3. START COMMAND =================
 @app.on_message(filters.command("start") & filters.private)
 async def start(client, message):
     user_id = message.from_user.id
@@ -32,56 +50,52 @@ async def start(client, message):
             [InlineKeyboardButton("✅ Joined", callback_data="check_join")]
         ])
         return await message.reply_text("⚠️ Pehle Channel Join Karo", reply_markup=buttons)
-
-    buttons = InlineKeyboardMarkup([
-        [InlineKeyboardButton("🎮 BGMI UC", callback_data="bgmi")],
-        [InlineKeyboardButton("💳 Credit Cards", callback_data="cc")],
-        [InlineKeyboardButton("🎁 Gift Cards", callback_data="gift")]
-    ])
-    await message.reply_text("🔥 Welcome To Store", reply_markup=buttons)
-
-# ================= 3. CHECK JOIN CALLBACK =================
-@app.on_callback_query(filters.regex("check_join"))
-async def check_join_fix(client, callback_query):
-    user_id = callback_query.from_user.id
-    is_ok = await joined(client, user_id)
     
-    if is_ok:
-        await callback_query.answer("✅ Welcome! Aapne join kar liya hai.", show_alert=True)
-        await callback_query.message.delete()
-        await start(client, callback_query.message)
-    else:
-        await callback_query.answer("❌ Abhi tak join nahi kiya! Pehle join karein.", show_alert=True)
+    # Agar pehle se join hai toh direct menu
+    await show_main_menu(message)
 
-# ================= 4. OTHER HANDLERS (BGMI, CC, GIFT) =================
+# ================= 4. CHECK JOIN CALLBACK (FIXED) =================
+@app.on_callback_query(filters.regex("check_join"))
+async def check_join_logic(client, callback_query):
+    user_id = callback_query.from_user.id
+    if await joined(client, user_id):
+        await callback_query.answer("✅ Verified! Welcome back.", show_alert=True)
+        # Purana join wala message delete karke menu dikhayega
+        await callback_query.message.delete()
+        await show_main_menu(callback_query)
+    else:
+        await callback_query.answer("❌ Aapne abhi tak join nahi kiya hai!", show_alert=True)
+
+# ================= 5. PRODUCT MENUS =================
 @app.on_callback_query(filters.regex("^(bgmi|cc|gift)$"))
-async def menus(client, callback_query):
+async def product_menus(client, callback_query):
     data = callback_query.data
     if data == "bgmi":
         buttons = [[InlineKeyboardButton("8100 UC - ₹3000", callback_data="buy_8100")],
                    [InlineKeyboardButton("18000 UC - ₹5000", callback_data="buy_18000")]]
         text = "🎮 Select UC Package"
     elif data == "cc":
-        buttons = [[InlineKeyboardButton("15$ CC - ₹1455", callback_data="buy_cc15")],
-                   [InlineKeyboardButton("20$ CC - ₹1940", callback_data="buy_cc20")]]
+        buttons = [[InlineKeyboardButton("15$ CC - Balances  ₹5455", callback_data="buy_cc15")],
+                   [InlineKeyboardButton("20$ CC -  Balances ₹7940", callback_data="buy_cc20")]]
         text = "💳 Select Credit Card"
     else:
-        buttons = [[InlineKeyboardButton("15$ Gift - ₹1455", callback_data="buy_gift15")],
-                   [InlineKeyboardButton("20$ Gift - ₹1940", callback_data="buy_gift20")]]
+        buttons = [[InlineKeyboardButton("15$ Gift - Balances ₹3455", callback_data="buy_gift15")],
+                   [InlineKeyboardButton("20$ Gift - Balance ₹1940", callback_data="buy_gift20")]]
         text = "🎁 Select Gift Card"
     
-    await callback_query.message.reply_text(text, reply_markup=InlineKeyboardMarkup(buttons))
+    await callback_query.message.edit_text(text, reply_markup=InlineKeyboardMarkup(buttons))
 
+# ================= 6. BUY & PAYMENT HANDLERS =================
 @app.on_callback_query(filters.regex("^buy_"))
 async def buy_handler(client, callback_query):
     user_id = callback_query.from_user.id
     data = callback_query.data
-
+    
     products = {
         "buy_8100": {"name": "8100 UC", "price": "3000", "is_bgmi": True},
         "buy_18000": {"name": "18000 UC", "price": "5000", "is_bgmi": True},
-        "buy_cc15": {"name": "15$ Credit Card", "price": "1455", "is_bgmi": False},
-        "buy_cc20": {"name": "20$ Credit Card", "price": "1940", "is_bgmi": False},
+        "buy_cc15": {"name": "15$ CC", "price": "1455", "is_bgmi": False},
+        "buy_cc20": {"name": "20$ CC", "price": "1940", "is_bgmi": False},
         "buy_gift15": {"name": "15$ Gift Card", "price": "1455", "is_bgmi": False},
         "buy_gift20": {"name": "20$ Gift Card", "price": "1940", "is_bgmi": False}
     }
@@ -91,10 +105,10 @@ async def buy_handler(client, callback_query):
 
     if item["is_bgmi"]:
         user_data[user_id]["step"] = "uid"
-        await callback_query.message.reply_text(f"🎮 Product: {item['name']}\n💰 Amount: ₹{item['price']}\n\n🆔 BGMI UID Bhejo:")
+        await callback_query.message.reply_text(f"🎮 {item['name']}\n💰 Amount: ₹{item['price']}\n\n🆔 BGMI UID Bhejo:")
     else:
         user_data[user_id]["step"] = "utr"
-        await callback_query.message.reply_text(f"🛒 Product: {item['name']}\n💰 Amount: ₹{item['price']}\n\n🏦 UPI ID: `{UPI_ID}`\n\n📥 Payment karke UTR Number bhejo:")
+        await callback_query.message.reply_text(f"🛒 {item['name']}\n💰 Amount: ₹{item['price']}\n\n🏦 UPI ID: `{UPI_ID}`\n\n📥 Payment karke UTR Bhejo:")
 
 @app.on_message(filters.text & filters.private)
 async def handle_text(client, message):
@@ -117,16 +131,15 @@ async def handle_photo(client, message):
     if user_id not in user_data or user_data[user_id].get("step") != "screenshot": return
 
     data = user_data[user_id]
-    uid_info = f"🎮 UID: `{data['uid']}`" if data.get("is_bgmi") else "🎮 UID: Not Required"
-    
+    uid_val = data.get('uid', 'Not Required')
     caption = (f"🛒 **New Order**\n\n👤 User: {message.from_user.mention}\n🆔 ID: `{user_id}`\n"
-               f"📦 Product: {data['product']}\n💰 Price: ₹{data['price']}\n{uid_info}\n💳 UTR: `{data['utr']}`")
+               f"📦 Product: {data['product']}\n💰 Price: ₹{data['price']}\n🎮 UID: `{uid_val}`\n💳 UTR: `{data['utr']}`")
 
     buttons = InlineKeyboardMarkup([[InlineKeyboardButton("✅ Accept", callback_data=f"accept_{user_id}"),
                                      InlineKeyboardButton("❌ Reject", callback_data=f"reject_{user_id}")]])
 
     await client.send_photo(ADMIN_ID, photo=message.photo.file_id, caption=caption, reply_markup=buttons)
-    await message.reply_text("✅ Payment Submitted! Admin verify kar raha hai.")
+    await message.reply_text("✅ Payment Details submitted! Admin verify karke approve karega.")
     user_data[user_id]["step"] = "done"
 
 @app.on_callback_query(filters.regex("^(accept|reject)_"))
