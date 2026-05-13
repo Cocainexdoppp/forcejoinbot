@@ -9,13 +9,13 @@ ADMIN_ID = 1829824114
 FORCE_CHANNEL = -1003974281028
 UPI_ID = "zayncarder@axl"
 
-app = Client(api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
+app = client(api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
 user_data = {}
 
 # ================= FORCE JOIN =================
 
-async def joined(Client, user_id):
+async def joined(client, user_id):
 
     try:
         member = await Client.get_chat_member(
