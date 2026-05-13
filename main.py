@@ -19,7 +19,7 @@ async def joined(client, user_id):
         member = await client.get_chat_member(chat_id=FORCE_CHANNEL, user_id=user_id)
         return member.status in ["member", "administrator", "creator"]
     except Exception:
-        return False
+        return True
 
 # ================= START COMMAND =================
 @app.on_message(filters.command("start") & filters.private)
