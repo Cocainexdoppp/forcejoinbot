@@ -13,20 +13,16 @@ UPI_ID = "zayncarder@axl"
 app = Client("shop_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 user_data = {}
 
-# ================= FORCE JOIN FUNCTION =================
-@app.on_callback_query(filters.regex("check_join"))
-async def check_join_fix(client, callback_query):
-    user_id = callback_query.from_user.id
-    is_ok = await joined(client, user_id)
-    
-    if is_ok:
-        await callback_query.answer("✅ Welcome! Aapne join kar liya hai.", show_alert=True)
-        await callback_query.message.delete() # Join wala message delete karega
-        await start(client, callback_query.message) # Phir se start menu dikhayega
-    else:
-        await callback_query.answer("❌ Abhi tak join nahi kiya! Pehle join karein.", show_alert=True)
+# ================= 1. JOINED FUNCTION (SABSE PEHLE) =================
+async def joined(client, user_id):
+    try:
+        member = await client.get_chat_member(chat_id=FORCE_CHANNEL, user_id=user_id)
+        return member.status in ["member", "administrator", "creator"]
+    except Exception as e:
+        print(f"Join Check Error: {e}")
+        return False
 
-# ================= START COMMAND =================
+# ================= 2. START COMMAND =================
 @app.on_message(filters.command("start") & filters.private)
 async def start(client, message):
     user_id = message.from_user.id
@@ -44,7 +40,20 @@ async def start(client, message):
     ])
     await message.reply_text("🔥 Welcome To Store", reply_markup=buttons)
 
-# ================= MENU HANDLERS =================
+# ================= 3. CHECK JOIN CALLBACK =================
+@app.on_callback_query(filters.regex("check_join"))
+async def check_join_fix(client, callback_query):
+    user_id = callback_query.from_user.id
+    is_ok = await joined(client, user_id)
+    
+    if is_ok:
+        await callback_query.answer("✅ Welcome! Aapne join kar liya hai.", show_alert=True)
+        await callback_query.message.delete()
+        await start(client, callback_query.message)
+    else:
+        await callback_query.answer("❌ Abhi tak join nahi kiya! Pehle join karein.", show_alert=True)
+
+# ================= 4. OTHER HANDLERS (BGMI, CC, GIFT) =================
 @app.on_callback_query(filters.regex("^(bgmi|cc|gift)$"))
 async def menus(client, callback_query):
     data = callback_query.data
@@ -63,7 +72,6 @@ async def menus(client, callback_query):
     
     await callback_query.message.reply_text(text, reply_markup=InlineKeyboardMarkup(buttons))
 
-# ================= BUY SYSTEM (LATEST FIX) =================
 @app.on_callback_query(filters.regex("^buy_"))
 async def buy_handler(client, callback_query):
     user_id = callback_query.from_user.id
@@ -85,11 +93,9 @@ async def buy_handler(client, callback_query):
         user_data[user_id]["step"] = "uid"
         await callback_query.message.reply_text(f"🎮 Product: {item['name']}\n💰 Amount: ₹{item['price']}\n\n🆔 BGMI UID Bhejo:")
     else:
-        # Gift Card/CC ke liye UID skip, direct Payment
         user_data[user_id]["step"] = "utr"
         await callback_query.message.reply_text(f"🛒 Product: {item['name']}\n💰 Amount: ₹{item['price']}\n\n🏦 UPI ID: `{UPI_ID}`\n\n📥 Payment karke UTR Number bhejo:")
 
-# ================= TEXT HANDLER =================
 @app.on_message(filters.text & filters.private)
 async def handle_text(client, message):
     user_id = message.from_user.id
@@ -100,13 +106,11 @@ async def handle_text(client, message):
         user_data[user_id]["uid"] = message.text
         user_data[user_id]["step"] = "utr"
         await message.reply_text(f"✅ UID Saved\n\n🏦 UPI ID: `{UPI_ID}`\n\n📥 Payment karke UTR Bhejo:")
-    
     elif step == "utr":
         user_data[user_id]["utr"] = message.text
         user_data[user_id]["step"] = "screenshot"
         await message.reply_text("📸 Ab Payment Screenshot Send Karo")
 
-# ================= PHOTO HANDLER =================
 @app.on_message(filters.photo & filters.private)
 async def handle_photo(client, message):
     user_id = message.from_user.id
@@ -125,21 +129,13 @@ async def handle_photo(client, message):
     await message.reply_text("✅ Payment Submitted! Admin verify kar raha hai.")
     user_data[user_id]["step"] = "done"
 
-# ================= ADMIN ACTIONS & REST =================
-@app.on_callback_query(filters.regex("^(accept|reject|check_join)_"))
-async def callback_rest(client, callback_query):
-    data = callback_query.data
-    if data == "check_join":
-        if await joined(client, callback_query.from_user.id):
-            await callback_query.message.delete()
-            await start(client, callback_query.message)
-        else:
-            await callback_query.answer("❌ Join Nahi Kiya", show_alert=True)
-    elif callback_query.from_user.id == ADMIN_ID:
-        action, target_id = data.split("_")
-        msg = "✅ Approved" if action == "accept" else "❌ Rejected"
-        await client.send_message(int(target_id), f"Aapka payment {msg} ho gaya hai.")
-        await callback_query.message.edit_caption(callback_query.message.caption + f"\n\n{msg}")
+@app.on_callback_query(filters.regex("^(accept|reject)_"))
+async def admin_decision(client, callback_query):
+    if callback_query.from_user.id != ADMIN_ID: return
+    action, target_id = callback_query.data.split("_")
+    msg = "✅ Approved" if action == "accept" else "❌ Rejected"
+    await client.send_message(int(target_id), f"Aapka payment {msg} ho gaya hai.")
+    await callback_query.message.edit_caption(callback_query.message.caption + f"\n\n{msg}")
 
-print("Bot Started Successfully!")
+print("Bot Started!")
 app.run()
