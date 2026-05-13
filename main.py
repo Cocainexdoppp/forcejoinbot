@@ -15,14 +15,13 @@ user_data = {}
 
 # ================= 1. JOINED FUNCTION (SABSE UPAR) =================
 async def joined(client, user_id):
+    if user_id == ADMIN_ID: # Aap owner ho, isliye aapko bypass kar dega
+        return True
     try:
-        # Bot ko channel ka Admin hona zaroori hai membership check karne ke liye
         member = await client.get_chat_member(chat_id=FORCE_CHANNEL, user_id=user_id)
-        if member.status in ["member", "administrator", "creator","Owner"]:
-            return True
-        return False
+        return member.status in ["member", "administrator", "creator"]
     except Exception as e:
-        print(f"Error checking join: {e}")
+        print(f"Error: {e}")
         return False
 
 # ================= 2. MAIN MENU FUNCTION =================
