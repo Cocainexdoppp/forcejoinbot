@@ -19,7 +19,7 @@ async def joined(Client, user_id):
 
     try:
         member = await Client.get_chat_member(
-            chat_id=-1003974281028,
+            chat_id=-1003974281028
             user_id=user_id
         )
 
