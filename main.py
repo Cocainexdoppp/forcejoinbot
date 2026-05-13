@@ -9,12 +9,7 @@ ADMIN_ID = 1829824114
 FORCE_CHANNEL = -1003974281028
 UPI_ID = "zayncarder@axl"
 
-app = Client(
-    "shop_bot",
-    api_id=API_ID,
-    api_hash=API_HASH,
-    bot_token=BOT_TOKEN
-)
+app = Client(api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
 user_data = {}
 
