@@ -18,7 +18,7 @@ async def joined(client, user_id):
     try:
         # Bot ko channel ka Admin hona zaroori hai membership check karne ke liye
         member = await client.get_chat_member(chat_id=FORCE_CHANNEL, user_id=user_id)
-        if member.status in ["member", "administrator", "creator"]:
+        if member.status in ["member", "administrator", "creator","Owner"]:
             return True
         return False
     except Exception as e:
