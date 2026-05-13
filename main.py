@@ -20,10 +20,10 @@ user_data = {}
 
 # ================= FORCE JOIN =================
 
-async def joined(client, user_id):
+async def joined(Client, user_id):
 
     try:
-        member = await client.get_chat_member(
+        member = await Client.get_chat_member(
             chat_id=-1003974281028,
             user_id=user_id
         )
