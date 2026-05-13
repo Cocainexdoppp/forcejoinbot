@@ -148,6 +148,75 @@ async def admin_decision(client, callback_query):
     msg = "✅ Approved" if action == "accept" else "❌ Rejected"
     await client.send_message(int(target_id), f"Aapka payment {msg} ho gaya hai.")
     await callback_query.message.edit_caption(callback_query.message.caption + f"\n\n{msg}")
+@app.on_message(filters.text & filters.private)
+async def handle_text(client, message):
+    user_id = message.from_user.id
+    if user_id not in user_data: return
+    step = user_data[user_id].get("step")
 
+    if step == "uid":
+        uid = message.text
+        # Check if UID starts with 5
+        if not uid.startswith("5"):
+            return await message.reply_text("❌ Galat UID! UID hamesha '5' se shuru honi chahiye. Phir se sahi UID bhejein:")
+        
+        user_data[user_id]["uid"] = uid
+        user_data[user_id]["step"] = "utr"
+        await message.reply_text(f"✅ UID Saved: `{uid}`\n\n⚠️ **Dhyan Dein:** Sirf wahi UTR bhejein jo `{UPI_ID}` par payment karne ke baad mila ho.\n\n📥 Apna UTR Number bhejein:")
+
+    elif step == "utr":
+        user_data[user_id]["utr"] = message.text
+        user_data[user_id]["step"] = "screenshot"
+        await message.reply_text("📸 Ab Payment ka **Screenshot** bhejein.\n\n⚠️ *Note: Sirf original transaction screenshot hi accept hoga. Fake photo bhejne par order turant reject kar diya jayega.*")
+
+# ================= 2. PHOTO HANDLER (Admin Verification) =================
+@app.on_message(filters.photo & filters.private)
+async def handle_photo(client, message):
+    user_id = message.from_user.id
+    if user_id not in user_data or user_data[user_id].get("step") != "screenshot": return
+
+    data = user_data[user_id]
+    
+    # Admin ko report bhejna
+    caption = (
+        "🚨 **NEW ORDER VERIFICATION**\n\n"
+        f"👤 User: {message.from_user.mention}\n"
+        f"🆔 User ID: `{user_id}`\n"
+        f"📦 Product: {data['product']}\n"
+        f"💰 Price: ₹{data['price']}\n"
+        f"🎮 UID: `{data.get('uid', 'N/A')}`\n"
+        f"💳 UTR: `{data['utr']}`\n\n"
+        "📢 **Admin Action:** Photo check karein aur niche action lein."
+    )
+
+    buttons = InlineKeyboardMarkup([
+        [InlineKeyboardButton("✅ Approve & Payment Received", callback_data=f"accept_{user_id}")],
+        [InlineKeyboardButton("❌ Reject (Fake/Wrong Photo)", callback_data=f"reject_{user_id}")]
+    ])
+
+    await client.send_photo(ADMIN_ID, photo=message.photo.file_id, caption=caption, reply_markup=buttons)
+    await message.reply_text("⏳ Aapke details verification ke liye bhej diye gaye hain. Admin transaction check karke aapko update karega.")
+    user_data[user_id]["step"] = "done"
+
+# ================= 3. ADMIN DECISION (Reject Logic) =================
+@app.on_callback_query(filters.regex("^(accept|reject)_"))
+async def admin_decision(client, callback_query):
+    if callback_query.from_user.id != ADMIN_ID: return
+    
+    action, target_id = callback_query.data.split("_")
+    
+    if action == "accept":
+        msg = "✅ Aapka payment verify ho gaya hai! Aapka order jaldi hi process ho jayega."
+        status_text = "✅ Approved & Done"
+    else:
+        msg = "❌ Aapka order Reject kar diya gaya hai. Kaaran: Galat screenshot ya UTR number."
+        status_text = "❌ Rejected (Fake/Wrong Detail)"
+
+    try:
+        await client.send_message(int(target_id), msg)
+        await callback_query.message.edit_caption(callback_query.message.caption + f"\n\n**STATUS: {status_text}**")
+        await callback_query.answer(f"Order {action}ed!", show_alert=True)
+    except Exception as e:
+        print(f"Error sending decision: {e}")
 print("Bot Started!")
 app.run()
